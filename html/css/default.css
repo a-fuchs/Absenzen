@@ -1,0 +1,187 @@
+html.wait, html.wait * { 
+    cursor: wait !important;
+}
+
+
+#idTop {
+    border-bottom: 1px solid gray;
+    padding-bottom: 1em;
+    margin-bottom: 1em;
+}
+
+.student {
+    border-bottom: 1px solid gray;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.25em;
+}
+
+.info {
+    padding-bottom: 0.25em;
+}
+
+span.key {
+    padding-left: 1em;
+    font-size: 0.8em;
+}
+
+#idTable * .dayTab tr.absence td.chief {
+    background-color: rgb(139, 176, 7);
+}
+
+span.key span.chief {
+    color: rgb(139, 176, 7);
+}
+
+#idTable * .dayTab tr.absence td.quarantine {
+    background-color: rgb(24, 133, 10);
+}
+
+span.key span.quarantine {
+    color: rgb(24, 133, 10);
+}
+
+#idTable * .dayTab tr.absence td.teacher {
+    background-color: rgb(213, 30, 245);
+}
+
+span.key span.teacher {
+    color: rgb(213, 30, 245);
+}
+
+
+#idTable * .dayTab tr.absence td.self {
+    background-color: rgba(30, 30, 245, 0.698);
+}
+
+span.key span.self {
+    color: rgba(30, 30, 245, 0.698);
+}
+
+
+#idTable * .dayTab tr.absence td.late {
+    background-color: rgba(245, 30, 30, 0.47);
+}
+
+span.key span.late {
+    color: rgba(245, 30, 30, 0.47);
+}
+
+
+
+#idTable * .dayTab tr.absence td.none {
+    background-color: red;
+}
+
+span.key span.none {
+    color: red;
+}
+
+
+#idTable * .dayTab tr.absence td.unknown {
+    background-color: rgba(32, 32, 32, 0.658);
+}
+
+span.key span.unknown {
+    color: rgba(32, 32, 32, 0.658);
+}
+
+#idTable * .dayTab tr.absence td.certificate {
+    background-color: rgb(108, 176, 7);
+}
+
+span.key span.certificate {
+    color: rgb(108, 176, 7);
+}
+
+
+#idTable {
+  border-collapse: collapse;
+  border: none;
+  text-align: center;
+  border-right: 1.5px solid black;
+}
+
+#idTable * {
+  border-collapse: collapse;
+
+  margin: 0px;
+  padding: 0px;
+}
+
+#idTable > tbody > tr > td.none {
+    border-left: none;
+}
+
+#idTable > tbody > tr > td.month {
+    border-top: 1px solid black;
+    border-left: 1.5px solid black;
+    border-right: 1.5px solid black;
+}
+
+#idTable > tbody > tr > td.weekDay {
+    border-right: 1.5px solid black;
+    border-left: 1.5px solid black;
+}
+
+
+#idTable > tbody > tr {
+  border-bottom: 1.5px solid gray;
+}
+
+#idTable > tbody > tr > td {
+  border-left: 1px solid gray;
+  /*border-right: 1px solid black; */
+  min-width: 1.5em;
+}
+
+
+#idTable > tbody > tr > td.new {
+    border-left: 1.5px solid black;
+}
+
+#idTable > tbody > tr > td.top {
+    border-top: 1.5px solid black;
+}
+
+#idTable * .dayNum {
+    padding-top:  0.25em;
+    font-size: 0.8em;
+    vertical-align:bottom;
+}
+
+
+#idTable * .dayTab {
+    /*border: solid 0.1px red;*/
+    width: 100%;
+    min-width: 1.5em;
+    margin-top: 0.15em;
+}
+
+#idTable * .dayTab tr td {
+    border-top: 0.5px solid black;
+    border-bottom: 0.5px solid black;
+    height: 0.25em;
+    background-color: white;
+}
+
+
+#idTable * .holiday {
+    color: gray;
+}
+
+#idTable * .outOfRange {
+    color: gray;
+}
+
+#idTable * .holiday tr td {
+    border-top: 0.5px solid lightgray;
+    border-bottom: 0.5px solid lightgray;
+    background-color: #EEEEEE;
+   /* background-color: #AAFFAA;*/
+}
+
+#idTable * .outOfRange tr td {
+    border-top: 0.5px solid lightgray;
+    border-bottom: 0.5px solid lightgray;
+    background-color: #EEEEEE;
+}
