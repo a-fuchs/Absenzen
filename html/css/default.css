@@ -5,8 +5,20 @@ html.wait, html.wait * {
 
 #idTop {
     border-bottom: 1px solid gray;
-    padding-bottom: 1em;
-    margin-bottom: 1em;
+    padding-bottom: 0.25em;
+    margin-bottom:  0.25em;
+}
+
+.classesToShow {
+    border-bottom: 1px solid gray;
+    padding: 0.25em;
+    margin: 0.25em;
+    background-color: rgb(216, 216, 216);
+}
+
+.btnShowClass {
+    padding-right: 0.25em;
+    margin-right: 0.25em;
 }
 
 .student {

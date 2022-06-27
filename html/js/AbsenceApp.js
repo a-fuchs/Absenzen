@@ -22,30 +22,73 @@ class AbsenceApp
 
         document.getElementById( "idLoadFileBtn" ).addEventListener( "click", 
             ()=>{ 
-                absenceService.getStudentDataMap().then(
-                    ( mapStudentData ) => { objThis.createTables( mapStudentData, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast ); }
+                absenceService.getClassStudentDataMap().then(
+                    ( mapClassStudentData ) => {
+                        const [strFirstClass] = mapClassStudentData.keys();
+
+                        objThis.createTables( mapClassStudentData, strFirstClass, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast );
+                    }
                 ).catch(
-                   ( error ) => { console.log( "ERROR when geting studentDataMap: " + error ); }
+                   ( error ) => { console.log( "ERROR when geting classStudentDataMap: " + error ); }
                 );
             }
         );
     }
 
-    createTables( mapStudentData, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast )
+    createTables( mapClassStudentData, strVisibleClass, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast )
     {
-        document.getElementById( "idDivTable" ).innerHTML = "";
+        let htmlDivTable = document.getElementById( "idDivTable" );
 
-        for ( const studentData of mapStudentData.values() )
+        htmlDivTable.innerHTML = "";
+
+        let objThis = this;
+
+        if ( mapClassStudentData.size > 0 )
+        {
+            let htmlDivClassesToShow = document.createElement( "div" );
+            htmlDivClassesToShow.className = "classesToShow";
+
+            for ( const strClass of mapClassStudentData.keys() )
+            {
+                // htmlDivClass.innerHTML = '<span class="className">' + strClass + '</span>';
+
+                if ( strVisibleClass != strClass )
+                {
+                    let htmlBtnShowClass = document.createElement( "button" );
+                    htmlBtnShowClass.setAttribute( "type", "button" );
+                    htmlBtnShowClass.className = "btnShowClass";
+                    htmlBtnShowClass.innerHTML = strClass; // "Show...";
+                    
+
+                    htmlBtnShowClass.addEventListener( "click", 
+                        ()=>{ 
+                            objThis.createTables( mapClassStudentData, strClass, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast );
+                        }
+                    );
+
+                    htmlDivClassesToShow.appendChild( htmlBtnShowClass );
+                }
+            }
+
+            htmlDivTable.appendChild( htmlDivClassesToShow );
+        }
+
+        let htmlDivVisibleClass = document.createElement( "div" );
+        htmlDivVisibleClass.className = "visibleClass";
+
+        for ( const studentData of mapClassStudentData.get( strVisibleClass ).values() )
         {
             try
             {
-                this.createTable( studentData, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast );
+                this.createTable( htmlDivVisibleClass, studentData, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast );
             }
             catch ( e )
             {
                 console.error( e );
             }
         }
+
+        htmlDivTable.appendChild( htmlDivVisibleClass );
     }
 
 /*
@@ -173,10 +216,8 @@ class AbsenceApp
     }
 
 
-    createTable( studentData, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast)
+    createTable( htmlDivClass, studentData, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast)
     {
-        let htmlDivTable = document.getElementById( "idDivTable" );
-        
         let htmlDivStudentData = document.createElement( "div" );
         htmlDivStudentData.className = "student";
 
@@ -299,6 +340,6 @@ class AbsenceApp
         
         htmlDivStudentData.appendChild( htmlTable );
 
-        htmlDivTable.appendChild( htmlDivStudentData );
+        htmlDivClass.appendChild( htmlDivStudentData );
     }
 }

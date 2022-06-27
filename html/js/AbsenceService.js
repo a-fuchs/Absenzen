@@ -115,28 +115,81 @@ class AbsenceService
         return strDate.split(".").reverse().join( "-" );
     }
 
-    getStudentDataMap()
+    // Langname\tVorname\tID\tKlasse\tBeginndatum\tBeginnzeit\tEnddatum\tEndzeit\tUnterbrechungen\tAbwesenheitsgrund\tText/Grund\tEntschuldigungsnummer\tStatus\tEntschuldigungstext\tgemeldet von Schüler*in\n
+    // Familienname\tVorname\tfamilienname.vorname-fs11d@schueler.fosbos-rosenheim.de\tFS11d\t26.10.2021\t08:00\t26.10.2021\t09:30\t\tfehlt unangekündigt\t\t21157\tentsch.\t\tfalse\n
+    getClassStudentDataMap()
     {
+        const MAIL_INDEX   =  2;
+        const COLUMN_COUNT = 15;
+
         return AbsenceService.selectFile().then(
             (objFile) => { return AbsenceService.loadFileToString( objFile ); }
         ).then(
             ( strCSV ) => {
                 let aLine = strCSV.split("\n");
                 // console.log( aLine );
-                let mapStudentData = new Map();
+                let mapClassStudentData = new Map();
                 
-                aLine.forEach( strLine => {
-                    let aData = strLine.split("\t" )
-                    // aCSVData.push( strLine.split("\t" ) );
-                    if ( undefined != aData[2] && aData[2] != "" && aData[2] != "ID" && aData[2].includes("@" ) )
+                let aData = [];
+
+                for ( let iIndex = 1; iIndex < aLine.length; ++iIndex ) // Start with 1: Skip header
+                {
+                    let strLine  = aLine[ iIndex ];
+                    let aColData = strLine.split( "\t" );
+
+                    if ( aData.length === 0 )
                     {
-                        let student = mapStudentData.get( aData[2] );
+                        aData = aColData;
+
+                        // Has entry valid email (aData[2])? Otherwise try next line.
+                        if ( undefined == aData[MAIL_INDEX] || aData[MAIL_INDEX] == "" || ! aData[MAIL_INDEX].includes("@" ) )
+                        {
+                            continue;
+                        }
+                    }
+                    else // someone hast entered \n in one of the textfields: Webuntis does not escape this \n's!
+                    {
+                        if ( aColData.length > 0 )
+                        {
+                            // console.log( "concat: " + aColData + " --> " + aData );
+
+                            aData[ aData.length -1 ] += aColData.shift();
+                            aData = aData.concat( aColData );
+
+                            // console.log( "      : " + aColData + " --> " + aData );
+                        }
+                    }
+
+                    if ( aData.length < COLUMN_COUNT && iIndex < aLine.length -1 ) // do not skip last line also if it is incomplete.
+                    {
+                        // console.log( "length < COLUMN_COUNT : " + aData );
+                        continue;
+                    }
+
+                    try
+                    {
+                        // Now we have a valid line.
+
+                        let strClass = aData[3];
+                        
+                        let mapStudentData = mapClassStudentData.get( strClass );
+
+                        if ( undefined === mapStudentData )
+                        {
+                            mapStudentData = new Map();
+
+                            mapClassStudentData.set( strClass, mapStudentData );
+                        }
+
+                        let strMail  = aData[MAIL_INDEX];
+
+                        let student = mapStudentData.get( strMail );
                         
                         if ( undefined === student )
                         {
-                            student = new Student( aData[2], aData[0], aData[1], aData[3] ); // mail, surename, forname, class
-    
-                            mapStudentData.set( aData[2], student );
+                            student = new Student( strMail, aData[0], aData[1], strClass ); // mail, surename, forname, class
+
+                            mapStudentData.set( strMail, student );
                         }
                         
                         let strISODateStart = AbsenceService.toISOString( aData[4] );
@@ -173,12 +226,21 @@ class AbsenceService
                         // ​​​​​​strStatus: "entsch."
                         // ​​strText: ""
                     }
-                });
-                    
+                    catch( e )
+                    {
+                        console.log( "ERROR while adding entry to mapStudentData " + e );
+                    }
+                    finally
+                    {
+                        aData.length = 0; 
+                    }
+                }
+
                 // console.table(aCSVDat)a;
                 // console.log( mapStudentData );
+                // console.log( "Loaded!" );
 
-                return mapStudentData;
+                return mapClassStudentData;
             }
         );
     }
