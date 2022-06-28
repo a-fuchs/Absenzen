@@ -24,7 +24,7 @@ class AbsenceApp
             ()=>{ 
                 absenceService.getClassStudentDataMap().then(
                     ( mapClassStudentData ) => {
-                        const [strFirstClass] = mapClassStudentData.keys();
+                        const [strFirstClass] = [...mapClassStudentData.keys()].sort();
 
                         objThis.createTables( mapClassStudentData, strFirstClass, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast );
                     }
@@ -48,26 +48,31 @@ class AbsenceApp
             let htmlDivClassesToShow = document.createElement( "div" );
             htmlDivClassesToShow.className = "classesToShow";
 
-            for ( const strClass of mapClassStudentData.keys() )
+            for ( const strClass of [...mapClassStudentData.keys()].sort() )
             {
                 // htmlDivClass.innerHTML = '<span class="className">' + strClass + '</span>';
 
+                let htmlBtnShowClass = document.createElement( "button" );
+                htmlBtnShowClass.setAttribute( "type", "button" );
+                htmlBtnShowClass.innerHTML = strClass; // "Show...";
+                
                 if ( strVisibleClass != strClass )
                 {
-                    let htmlBtnShowClass = document.createElement( "button" );
-                    htmlBtnShowClass.setAttribute( "type", "button" );
                     htmlBtnShowClass.className = "btnShowClass";
-                    htmlBtnShowClass.innerHTML = strClass; // "Show...";
-                    
 
                     htmlBtnShowClass.addEventListener( "click", 
                         ()=>{ 
                             objThis.createTables( mapClassStudentData, strClass, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast );
                         }
                     );
-
-                    htmlDivClassesToShow.appendChild( htmlBtnShowClass );
                 }
+                else
+                {
+                    htmlBtnShowClass.className = "btnShowClassVisible";
+                    // htmlBtnShowClass.disabled  = true;
+                }
+
+                htmlDivClassesToShow.appendChild( htmlBtnShowClass );
             }
 
             htmlDivTable.appendChild( htmlDivClassesToShow );
@@ -76,16 +81,23 @@ class AbsenceApp
         let htmlDivVisibleClass = document.createElement( "div" );
         htmlDivVisibleClass.className = "visibleClass";
 
-        for ( const studentData of mapClassStudentData.get( strVisibleClass ).values() )
+        let mapStudentData = mapClassStudentData.get( strVisibleClass );
+        
+        let iIndex  = 1;
+        let iLength = mapStudentData.size;
+        
+        for ( const strMail  of [...mapStudentData.keys()].sort() )
         {
             try
             {
-                this.createTable( htmlDivVisibleClass, studentData, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast );
+                this.createTable( htmlDivVisibleClass, iIndex, iLength, mapStudentData.get( strMail ), iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast );
             }
             catch ( e )
             {
                 console.error( e );
             }
+            
+            ++iIndex;
         }
 
         htmlDivTable.appendChild( htmlDivVisibleClass );
@@ -216,14 +228,14 @@ class AbsenceApp
     }
 
 
-    createTable( htmlDivClass, studentData, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast)
+    createTable( htmlDivClass, iIndex, iLength, studentData, iYearFirst, iMonthFirst, iDayFirst, iYearLast, iMonthLast, iDayLast)
     {
         let htmlDivStudentData = document.createElement( "div" );
         htmlDivStudentData.className = "student";
 
         let htmlDivStudentInfo = document.createElement( "div" );
         htmlDivStudentInfo.className = "info";
-        let strInfo = '<a href="mailto:' + studentData.strMail + '" title="' + studentData.strMail + '">' + studentData.strSureName + " " + studentData.strForeName + ", " + studentData.strClass + '</a>';
+        let strInfo = "" + iIndex + "/" + iLength + ': <a href="mailto:' + studentData.strMail + '" title="' + studentData.strMail + '">' + studentData.strSureName + " " + studentData.strForeName + ", " + studentData.strClass + '</a>';
         strInfo += '\
             <span class="key certificate"><span class="certificate">&#x25FC;</span> Attest</span>\
             <span class="key chief"><span class="chief">&#x25FC;</span> Beurlaubung</span>\

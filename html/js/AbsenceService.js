@@ -117,55 +117,86 @@ class AbsenceService
 
     // Langname\tVorname\tID\tKlasse\tBeginndatum\tBeginnzeit\tEnddatum\tEndzeit\tUnterbrechungen\tAbwesenheitsgrund\tText/Grund\tEntschuldigungsnummer\tStatus\tEntschuldigungstext\tgemeldet von Schüler*in\n
     // Familienname\tVorname\tfamilienname.vorname-fs11d@schueler.fosbos-rosenheim.de\tFS11d\t26.10.2021\t08:00\t26.10.2021\t09:30\t\tfehlt unangekündigt\t\t21157\tentsch.\t\tfalse\n
+    
+    
+    /*
+     * 
+     *let regexp = /(\t(true|false)(\n|\r))/mg;
+
+let str="Hello\t\n\nworld\n\ttrue\nIts amazing\tfalse\nXXX\t\t\n\ttrue\n";
+let result;
+let iStart = 0;
+while ( result = regexp.exec(str) )
+{
+    let iEnd   = result.index + result[0].length -1;
+    console.log( '"' + str.substring( iStart, iEnd ).split( "\t" ) + '"' );
+	iStart = iEnd;
+}
+*/
+    normalizeString( str )
+    {
+        if ( undefined == str )
+        {
+            return "";
+        }
+        else
+        {
+            return str.trim();
+        }
+    }
+    
     getClassStudentDataMap()
     {
-        const MAIL_INDEX   =  2;
-        const COLUMN_COUNT = 15;
-
+        const regexp = /(\t(true|false)(\n|\r))/mg;
+        let objThis  = this;
+        
         return AbsenceService.selectFile().then(
             (objFile) => { return AbsenceService.loadFileToString( objFile ); }
         ).then(
             ( strCSV ) => {
-                let aLine = strCSV.split("\n");
+                let iIndexStart = strCSV.indexOf("\n") + 1;
+                let iIndexEnd   = 0;
+                
                 // console.log( aLine );
                 let mapClassStudentData = new Map();
                 
-                let aData = [];
-
-                for ( let iIndex = 1; iIndex < aLine.length; ++iIndex ) // Start with 1: Skip header
+                let aResult;
+                
+                while ( aResult = regexp.exec(strCSV) )
                 {
-                    let strLine  = aLine[ iIndex ];
-                    let aColData = strLine.split( "\t" );
+                    iIndexEnd = aResult.index + aResult[0].length -1;
+                    
+                    let aData = strCSV.substring( iIndexStart, iIndexEnd ).replace( "\n", " " ).replace( "\r", " " ).split( "\t" );
 
-                    if ( aData.length === 0 )
+                    // console.log( "[" + iIndexStart + " → " + iIndexEnd + "] " + aData );
+
+                    iIndexStart = iIndexEnd + 1;
+                    
+                    let strSureName = objThis.normalizeString( aData[ 0 ] );
+                    let strForeName = objThis.normalizeString( aData[ 1 ] );
+                    let strMail     = objThis.normalizeString( aData[ 2 ] );
+                    let strClass    = objThis.normalizeString( aData[ 3 ] );
+
+                    if ( strMail.length === 0 )
                     {
-                        aData = aColData;
-
-                        // Has entry valid email (aData[2])? Otherwise try next line.
-                        if ( undefined == aData[MAIL_INDEX] || aData[MAIL_INDEX] == "" || ! aData[MAIL_INDEX].includes("@" ) )
+                        if ( strSureName != "" )
                         {
-                            continue;
+                            strMail = strSureName.toLowerCase() + "." + strForeName.toLowerCase() + "-" + strClass.toLowerCase() + "@schueler.fosbos-rosenheim.de";
+                        }
+                        else
+                        {
+                            console.log( "Skip data: " + aData );
                         }
                     }
-                    else // someone hast entered \n in one of the textfields: Webuntis does not escape this \n's!
+                    else
                     {
-                        if ( aColData.length > 0 )
+                        if ( ! strMail.includes("@" ) )
                         {
-                            // console.log( "concat: " + aColData + " --> " + aData );
-
-                            aData[ aData.length -1 ] += aColData.shift();
-                            aData = aData.concat( aColData );
-
-                            // console.log( "      : " + aColData + " --> " + aData );
+                            strMail += "@schueler.fosbos-rosenheim.de";
                         }
                     }
-
-                    if ( aData.length < COLUMN_COUNT && iIndex < aLine.length -1 ) // do not skip last line also if it is incomplete.
-                    {
-                        // console.log( "length < COLUMN_COUNT : " + aData );
-                        continue;
-                    }
-
+                    // https://gist.github.com/yeah/1283961
+                    
                     try
                     {
                         // Now we have a valid line.
@@ -180,8 +211,6 @@ class AbsenceService
 
                             mapClassStudentData.set( strClass, mapStudentData );
                         }
-
-                        let strMail  = aData[MAIL_INDEX];
 
                         let student = mapStudentData.get( strMail );
                         
@@ -229,10 +258,6 @@ class AbsenceService
                     catch( e )
                     {
                         console.log( "ERROR while adding entry to mapStudentData " + e );
-                    }
-                    finally
-                    {
-                        aData.length = 0; 
                     }
                 }
 

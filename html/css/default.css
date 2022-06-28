@@ -19,6 +19,16 @@ html.wait, html.wait * {
 .btnShowClass {
     padding-right: 0.25em;
     margin-right: 0.25em;
+    min-width: 4em;
+}
+
+.btnShowClassVisible {
+    padding-right: 0.2em;
+    margin-right: 0.2em;
+    min-width: 4em;
+    background-color: rgb(158, 158, 214);
+    font-weight: bold;
+    cursor: not-allowed;
 }
 
 .student {
